@@ -17,25 +17,31 @@ class User < ActiveRecord::Base
             :format => {:with => /^[\w+\-.]+@[a-z\d\-.]+\.[a-z]+$/i},
             :uniqueness => {:case_sensitive => false}
 
-  def self.by_karma
-    order('karma_total DESC').limit(50)
-  end
+  scope :by_karma, lambda { order('karma_total DESC').limit(50) }
+  scope :page, lambda { |current_page, per_page|
+    offset(current_page.to_i*per_page)
+  }
 
-  def self.page(params)
-    offset(50*params.to_i)
-  end
+  # def self.by_karma
+  #   order('karma_total DESC').limit(50)
+  # end
 
   def full_name
     "#{first_name} #{last_name}"
   end
-end
 
+  def self.total_users
+    User.count
+  end
 
-
-# def self.by_karma
+  # def self.by_karma
   #   joins(:karma_points).group('users.id').order('SUM(karma_points.value) DESC')
   # end
 
   # def total_karma
   #   self.karma_points.sum(:value)
   # end
+end
+
+
+
